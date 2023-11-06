@@ -1,0 +1,46 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+
+    <!--<item
+        android:id="@+id/home"
+        android:icon="@drawable/casa1"
+        android:title="AlugueAki"
+        app:showAsAction="always" />-->
+
+
+    <item
+        android:id="@+id/addCasa"
+        android:icon="@drawable/add_home"
+        android:title="AdicionarCasa"
+        app:showAsAction="always" />
+
+
+    <item
+        android:id="@+id/spacer3"
+        android:title=""
+        android:enabled="false"
+        app:showAsAction="always" />
+
+
+    <item
+        android:id="@+id/chat"
+        android:icon="@drawable/chat"
+        android:title="Chat"
+        app:showAsAction="always"
+        />
+
+    <item
+        android:id="@+id/spacer4"
+        android:title=""
+        android:enabled="false"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/voltar"
+        android:icon="@drawable/voltar"
+        android:title="Voltar"
+        app:showAsAction="always" />
+     />
+</menu>

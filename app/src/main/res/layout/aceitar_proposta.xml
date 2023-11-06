@@ -1,0 +1,72 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <ImageView
+        android:id="@+id/imageCasa"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/casa1" />
+
+    <TextView
+        android:id="@+id/textTitulo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/imageCasa"
+        android:layout_marginTop="16dp"
+        android:text="Proposta de: "
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/textUsername"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/imageCasa"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="150dp"
+        android:text="Username"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/textDescricao"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textTitulo"
+        android:layout_marginTop="8dp"
+        android:text="Descrição da Casa" />
+
+    <TextView
+        android:id="@+id/textEndereco"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textDescricao"
+        android:layout_marginTop="8dp"
+        android:text="Endereço da Casa" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textEndereco"
+        android:layout_marginTop="16dp">
+
+        <Button
+            android:id="@+id/ButtonAceitar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="aceitarProposta"
+
+            android:text="Aceitar" />
+
+        <Button
+            android:id="@+id/ButtonRecusar"
+            android:onClick="rejeitarProposta"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Recusar"
+            />
+    </LinearLayout>
+</RelativeLayout>

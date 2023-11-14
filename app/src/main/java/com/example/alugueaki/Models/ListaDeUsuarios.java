@@ -42,12 +42,13 @@ public class ListaDeUsuarios implements Serializable {
 
     public Usuario getUsuarioPeloNome(String nome) {
         for (Usuario usuario : usersList) {
-            if (usuario.getNome().equals(nome)) {
+            if (usuario != null && usuario.getNome() != null && usuario.getNome().equals(nome)) {
                 return usuario;
             }
         }
         return null;
     }
+
 
     public void addChat(Chat chat){
         chats.add(chat);

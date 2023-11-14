@@ -29,13 +29,30 @@
         android:text="Endereço da Casa" />
 
 
-    <TextView
-        android:id="@+id/textInquilino"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/textEndereco"
-        android:layout_marginTop="8dp"
-        android:text="Alugada para: " />
+        android:id="@+id/boxInquilino"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/textDescricaoInquilino"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/textEndereco"
+            android:layout_marginTop="8dp"
+            android:text="Alugada para: " />
+
+        <TextView
+            android:id="@+id/textInquilino"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Fulano" />
+    </LinearLayout>
+
+
 
 
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
@@ -43,7 +60,7 @@
         android:layout_width="match_parent"
         android:layout_height="350dp"
         android:layout_marginTop="20dp"
-        android:layout_below="@id/textInquilino"
+        android:layout_below="@id/boxInquilino"
         android:id="@+id/map"
         tools:context=".MapsActivity"
         android:name="com.google.android.gms.maps.SupportMapFragment" />

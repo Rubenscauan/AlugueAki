@@ -45,6 +45,7 @@ public class Casa implements Serializable {
         this.longitude = longitude;
         this.imagem = imagem;
         this.id = id;
+        this.pedido = pedido;
 
     }
 

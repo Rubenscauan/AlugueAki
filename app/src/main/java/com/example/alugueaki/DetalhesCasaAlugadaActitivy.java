@@ -28,6 +28,7 @@ public class DetalhesCasaAlugadaActitivy extends AppCompatActivity {
     private Casa casa = new Casa();
     private Usuario usuario = new Usuario();
     private ListaDeUsuarios listaDeUsuarios = new ListaDeUsuarios();
+    private Usuario solicitante = new Usuario();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,15 +37,19 @@ public class DetalhesCasaAlugadaActitivy extends AppCompatActivity {
         casa = (Casa) getIntent().getSerializableExtra("casa");
         usuario = (Usuario) getIntent().getSerializableExtra("usuario");
         listaDeUsuarios = (ListaDeUsuarios) getIntent().getSerializableExtra("listaDeUsuarios");
+        solicitante = listaDeUsuarios.getDeterminadoUsuario(casa.getPedido().getSolicitante().getId());
 
+        Log.d("DEBUG", "" + casa);
         TextView textTitulo = findViewById(R.id.textTitulo);
         TextView textDescricao = findViewById(R.id.textDescricao);
         TextView textEndereco = findViewById(R.id.textEndereco);
         TextView textInquilino = findViewById(R.id.textInquilino);
 
-        textTitulo.setText(casa.getNome());
+        textTitulo.setText(usuario.getNome());
         textDescricao.setText(casa.getDescricao());
         textEndereco.setText(casa.getEndereco());
+        textInquilino.setText(solicitante.getNome());
+
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -90,7 +95,6 @@ public class DetalhesCasaAlugadaActitivy extends AppCompatActivity {
         usuario.removeCasaAlugada(casa.getId());
         usuario.addCasaPAlugar(casa);
 
-        Usuario solicitante = listaDeUsuarios.getDeterminadoUsuario(casa.getPedido().getSolicitante().getId());
         solicitante.removeCasaQueAluguei(casa.getId());
 
 

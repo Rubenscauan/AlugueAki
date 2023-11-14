@@ -80,9 +80,11 @@ public class CasasQueAlugueiActitivy extends AppCompatActivity implements Minhas
         super.onActivityResult(requestCode, resultCode, data);
 
         if(requestCode == 3 && resultCode ==  RESULT_OK){
+            Log.d("DEBUG",""+ listaDeUsuarios);
             usuario = (Usuario) data.getSerializableExtra("usuario");
             listaDeUsuarios = (ListaDeUsuarios) data.getSerializableExtra("listaDeUsuarios");
-            Log.d("DEBUG",""+ usuario.getCasasPAluguel());
+            Log.d("DEBUG",""+ listaDeUsuarios);
+            Log.d("debug", "" + usuario);
             minhasCasasAdapter.notifyDataSetChanged();
 
         }

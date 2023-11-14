@@ -10,13 +10,21 @@
         android:id="@+id/textDestinatario"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Remetente:"
+        android:text="Destinatario:"
         android:textStyle="bold" />
 
-
-    <TextView
-        android:id="@+id/textMessagem"
+    <FrameLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Conteúdo da mensagem" />
+        android:padding="8dp"
+        android:background="@drawable/mensagem_box"> <!-- Adicione um plano de fundo para a borda -->
+
+        <TextView
+            android:id="@+id/textMessagem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Conteúdo da mensagem" />
+    </FrameLayout>
+
 </LinearLayout>

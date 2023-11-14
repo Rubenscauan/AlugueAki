@@ -26,6 +26,7 @@ public class DetalhesCasaQueAluguei extends AppCompatActivity {
     private Casa casa = new Casa();
     private Usuario usuario = new Usuario();
     private ListaDeUsuarios listaDeUsuarios = new ListaDeUsuarios();
+    private Usuario dono = new Usuario();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,14 +36,21 @@ public class DetalhesCasaQueAluguei extends AppCompatActivity {
         usuario = (Usuario) getIntent().getSerializableExtra("usuario");
         listaDeUsuarios = (ListaDeUsuarios) getIntent().getSerializableExtra("listaDeUsuarios");
 
+        dono = listaDeUsuarios.getDeterminadoUsuario(casa.getUserId());
+
+
         TextView textTitulo = findViewById(R.id.textTitulo);
         TextView textDescricao = findViewById(R.id.textDescricao);
         TextView textEndereco = findViewById(R.id.textEndereco);
         TextView textInquilino = findViewById(R.id.textInquilino);
 
-        textTitulo.setText(casa.getNome());
+        Log.d("DEBUG", "" + casa);
+        Log.d("debug", "" + listaDeUsuarios);
+
+        textTitulo.setText(dono.getNome());
         textDescricao.setText(casa.getDescricao());
         textEndereco.setText(casa.getEndereco());
+        textInquilino.setText(usuario.getNome());
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -83,12 +91,18 @@ public class DetalhesCasaQueAluguei extends AppCompatActivity {
     }
 
     public void encerrarContrato(View view){
-        usuario.removeCasaQueAluguei(casa.getId());
-        Usuario dono = listaDeUsuarios.getDeterminadoUsuario(casa.getUserId());
-        dono.addCasaPAlugar(casa);
+        Log.d("debug", "" + dono);
         dono.removeCasaAlugada(casa.getId());
+        dono.addCasaPAlugar(casa);
+
+        usuario.removeCasaQueAluguei(casa.getId());
+
         listaDeUsuarios.setUsuario(usuario.getId(),usuario);
-        listaDeUsuarios.setUsuario(casa.getUserId(),dono);
+        listaDeUsuarios.setUsuario(dono.getId(),dono);
+
+        Log.d("debug", "" + usuario);
+        Log.d("debug", "" + dono);
+        Log.d("debug", "" + listaDeUsuarios);
 
         Intent intent = new Intent();
         intent.putExtra("listaDeUsuarios", listaDeUsuarios);

@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements CasaAdapter.OnIte
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        getSupportActionBar().setDisplayShowTitleEnabled(false); // Adicione esta linha
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
 
         RecyclerView recyclerViewCasa = binding.recyclerViewCasas1;
@@ -104,8 +104,6 @@ public class MainActivity extends AppCompatActivity implements CasaAdapter.OnIte
             Intent intent = new Intent();
             intent.putExtra("usuario", usuario);
             intent.putExtra("listaDeUsuarios", listaDeUsuarios);
-            Log.d("DEBUG", "Teste da lista de user: " + listaDeUsuarios.getChats());
-            Log.d("DEBUG", "Teste da lista de user: " + listaDeUsuarios.getChats());
             intent.putExtra("id", id);
             setResult(RESULT_OK, intent);
             finish();

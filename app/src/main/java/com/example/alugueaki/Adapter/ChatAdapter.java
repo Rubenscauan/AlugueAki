@@ -54,7 +54,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
         Chat chat = chatList.get(position);
 
-        holder.binding.destinatarioNome.setText(chat.getUsuarioDestinatario().getNome());
+        holder.binding.destinatarioNome.setText(chat.getUltimaMensagem().getRemetente().getNome());
         holder.binding.ultimaMensagem.setText(chat.getUltimaMensagem().getConteudo());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 

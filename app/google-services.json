@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "712702212581",
+    "project_id": "alugueaki",
+    "storage_bucket": "alugueaki.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:712702212581:android:8061f0813f213302fb570c",
+        "android_client_info": {
+          "package_name": "com.example.alugueaki"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBPHftvnzmm85okppnrCa-EkQjc6dEok6w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

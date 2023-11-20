@@ -91,7 +91,6 @@ public class CasaCadastroActivity extends AppCompatActivity implements OnMapRead
         mMap = googleMap;
         mMap.setOnMapClickListener(this);
 
-
         // Se você já tem uma localização selecionada, atualize o marcador no mapa
         if (selectedLocation != null) {
             updateMapMarker(selectedLocation);

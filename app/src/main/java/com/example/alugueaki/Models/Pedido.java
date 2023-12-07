@@ -3,29 +3,42 @@ package com.example.alugueaki.Models;
 import java.io.Serializable;
 
 public class Pedido implements Serializable {
-    private Usuario solicitante; // O usuário que está fazendo o pedido
+    private String usuarioId;
 
-    public Pedido(Usuario solicitante) {
-        this.solicitante = solicitante;
+    private String usuarioNome;
 
-    }
 
     public Pedido(){}
 
     // Getters e setters para os campos acima
 
-    public Usuario getSolicitante() {
-        return solicitante;
-    }
-
-    public void setSolicitante(Usuario solicitante) {
-        this.solicitante = solicitante;
-    }
 
     @Override
     public String toString() {
         return "Pedido{" +
-                 solicitante +
+                "usuarioId='" + usuarioId + '\'' +
+                ", usuarioNome='" + usuarioNome + '\'' +
                 '}';
+    }
+
+    public Pedido(String usuarioid, String usuarioNome) {
+        this.usuarioId = usuarioid;
+        this.usuarioNome = usuarioNome;
+    }
+
+    public String getUsuarioNome() {
+        return usuarioNome;
+    }
+
+    public void setUsuarioNome(String usuarioNome) {
+        this.usuarioNome = usuarioNome;
+    }
+
+    public String getUsuarioId() {
+        return usuarioId;
+    }
+
+    public void setUsuarioId(String usuarioid) {
+        usuarioId = usuarioid;
     }
 }

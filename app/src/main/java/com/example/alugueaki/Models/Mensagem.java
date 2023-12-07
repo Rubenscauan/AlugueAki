@@ -4,36 +4,41 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 public class Mensagem implements Serializable {
-    private Usuario remetente;
-    private Usuario destinatario;
+    private String remetenteId;
+    private String destinatarioId;
     private String conteudo;
-    private LocalDateTime dataHoraEnvio;
+
+    private String remetenteNome;
+    private String destinatarioNome;
+    //private LocalDateTime dataHoraEnvio;
     private boolean isRemetente;
 
 
     public Mensagem(){}
-    public Mensagem(Usuario remetente, Usuario destinatario, String conteudo, boolean isRemetente) {
-        this.remetente = remetente;
-        this.destinatario = destinatario;
+    public Mensagem(String remetente, String destinatario, String conteudo, boolean isRemetente,String remetenteNome,String DestinatarioNome) {
+        this.remetenteId = remetente;
+        this.destinatarioId = destinatario;
         this.conteudo = conteudo;
-        this.dataHoraEnvio = LocalDateTime.now();
+        this.remetenteNome = remetenteNome;
+        this.destinatarioNome = DestinatarioNome;
+        //this.dataHoraEnvio = LocalDateTime.now();
         this.isRemetente = isRemetente;
     }
 
-    public Usuario getRemetente() {
-        return remetente;
+    public String getRemetente() {
+        return remetenteId;
     }
 
-    public void setRemetente(Usuario remetente) {
-        this.remetente = remetente;
+    public void setRemetente(String remetente) {
+        this.remetenteId = remetente;
     }
 
-    public Usuario getDestinatario() {
-        return destinatario;
+    public String getDestinatario() {
+        return destinatarioId;
     }
 
-    public void setDestinatario(Usuario destinatario) {
-        this.destinatario = destinatario;
+    public void setDestinatario(String destinatario) {
+        this.destinatarioId = destinatario;
     }
 
     public String getConteudo() {
@@ -44,24 +49,44 @@ public class Mensagem implements Serializable {
         this.conteudo = conteudo;
     }
 
-    public LocalDateTime getDataHoraEnvio() {
-        return dataHoraEnvio;
-    }
+    //public LocalDateTime getDataHoraEnvio() {
+        //return dataHoraEnvio;
+    //}
 
-    public void setDataHoraEnvio(LocalDateTime dataHoraEnvio) {
-        this.dataHoraEnvio = dataHoraEnvio;
-    }
+    //public void setDataHoraEnvio(LocalDateTime dataHoraEnvio) {
+    //    this.dataHoraEnvio = dataHoraEnvio;
+    //}
 
     @Override
     public String toString() {
         return conteudo + "isremetente = " + isRemetente;
     }
 
-    public boolean isRemetente() {
+    public boolean GetIsRemetente() {
         return isRemetente;
     }
+    public void RecuperarRemetente(boolean sim) {
+        this.isRemetente = sim;
+    }
+
 
     public void setIsRemetente() {
         this.isRemetente = !isRemetente;
+    }
+
+    public String getRemetenteNome() {
+        return remetenteNome;
+    }
+
+    public void setRemetenteNome(String remetenteNome) {
+        this.remetenteNome = remetenteNome;
+    }
+
+    public String getDestinatarioNome() {
+        return destinatarioNome;
+    }
+
+    public void setDestinatarioNome(String destinatarioNome) {
+        this.destinatarioNome = destinatarioNome;
     }
 }

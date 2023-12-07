@@ -18,35 +18,87 @@ import com.example.alugueaki.Models.ListaDeUsuarios;
 import com.example.alugueaki.Models.Pedido;
 import com.example.alugueaki.Models.Usuario;
 import com.example.alugueaki.databinding.MinhasCasasBinding;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+import java.util.Map;
 
 public class MinhasPropostasActivity extends AppCompatActivity implements MinhasCasasAdapter.OnItemClickListener  {
     private MinhasCasasBinding binding;
     private MinhasCasasAdapter minhasCasasAdapter;
-    Usuario usuario =  new Usuario();
-    ListaDeUsuarios listaDeUsuarios = new ListaDeUsuarios();
+    Usuario usuarioQueVem =  new Usuario();
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+
+    private ArrayList<Casa> casasComProposta = new ArrayList<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        usuario = (Usuario) getIntent().getSerializableExtra("usuario");
-
-        listaDeUsuarios = (ListaDeUsuarios) getIntent().getSerializableExtra("listaDeUsuarios");
-
-
-        Log.d("DEBUG", "Casas com proposta = " + usuario.getCasasComPedido());
-
         super.onCreate(savedInstanceState);
-        binding = MinhasCasasBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-
-        RecyclerView recyclerViewMinhasCasas = binding.recyclerMinhasCasas1;
-        recyclerViewMinhasCasas.setLayoutManager(new LinearLayoutManager(this));
-        recyclerViewMinhasCasas.setHasFixedSize(true);
+        usuarioQueVem = (Usuario) getIntent().getSerializableExtra("usuario");
 
 
-        minhasCasasAdapter = new MinhasCasasAdapter(usuario.getCasasComPedido(),this,this);
-        recyclerViewMinhasCasas.setAdapter(minhasCasasAdapter);
+        DocumentReference usuario = db.collection("usuarios").document(usuarioQueVem.getUid());
 
-        minhasCasasAdapter.notifyDataSetChanged();
+        usuario.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
+                    // Encontrou o documento do usuário
+
+                    ArrayList<Map<String, Object>> casasData = (ArrayList<Map<String, Object>>) document.get("casasComPedido");
+
+
+                    if (casasData != null) {
+                        for (Map<String, Object> casaData : casasData) {
+                            // Crie objetos Casa com os dados e adicione ao array todasAsCasas
+                            Casa casa = new Casa();
+                            casa.setNome((String) casaData.get("nome"));
+                            casa.setAluguel((String) casaData.get("aluguel"));
+                            casa.setDescricao((String) casaData.get("descricao"));
+                            casa.setTelefone((String) casaData.get("telefone"));
+                            casa.setLocalizacao((String) casaData.get("localizacao"));
+                            casa.setLatitude((Double) casaData.get("latitude"));
+                            casa.setLongitude((Double) casaData.get("longitude"));
+                            casa.setId((String) casaData.get("id"));
+
+
+                            if (casaData.containsKey("pedido")) {
+                                Map<String, Object> pedidoData = (Map<String, Object>) casaData.get("pedido");
+
+                                Pedido pedido = new Pedido();
+                                pedido.setUsuarioId((String) pedidoData.get("usuarioId"));
+                                pedido.setUsuarioNome((String) pedidoData.get("usuarioNome"));
+                                casa.setPedido(pedido);
+                            }
+
+                            casa.setUserId((String) casaData.get("userId"));
+                            casa.setEndereco((String) casaData.get("endereco"));
+                            casa.setImagem(R.drawable.casa1);
+                            //falta carregar imagem certa
+                            casasComProposta.add(casa);
+
+                            Log.d("debug", "casas com pedido no for" + casasComProposta);
+                        }
+                    }
+                }
+            }
+            usuarioQueVem.setCasasComPedido(casasComProposta);
+            binding = MinhasCasasBinding.inflate(getLayoutInflater());
+            setContentView(binding.getRoot());
+
+            RecyclerView recyclerViewMinhasCasas = binding.recyclerMinhasCasas1;
+            recyclerViewMinhasCasas.setLayoutManager(new LinearLayoutManager(this));
+            recyclerViewMinhasCasas.setHasFixedSize(true);
+
+
+            minhasCasasAdapter = new MinhasCasasAdapter(usuarioQueVem.getCasasComPedido(),this,this);
+            recyclerViewMinhasCasas.setAdapter(minhasCasasAdapter);
+
+            minhasCasasAdapter.notifyDataSetChanged();
+        });
     }
 
 
@@ -61,9 +113,7 @@ public class MinhasPropostasActivity extends AppCompatActivity implements Minhas
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.voltar) {
             Intent newintent = new Intent();
-            Log.d("DEBUG", ""+listaDeUsuarios.getUsersList());
-
-            newintent.putExtra("listaDeUsuarios", listaDeUsuarios);
+            newintent.putExtra("usuario", usuarioQueVem);
             setResult(RESULT_OK, newintent);
             finish();
             return true;
@@ -76,11 +126,8 @@ public class MinhasPropostasActivity extends AppCompatActivity implements Minhas
     @Override
     public void onItemClicked(Casa casa) {
         Intent intent = new Intent(this, AceitarPropostaActivity.class);
-        int solicitanteId = casa.getPedido().getSolicitante().getId();
         intent.putExtra("casa", casa);
-        intent.putExtra("solicitanteId", solicitanteId);
-        intent.putExtra("listaDeUsuarios", listaDeUsuarios);
-        intent.putExtra("usuario",usuario);
+        intent.putExtra("usuario",usuarioQueVem);
         startActivityForResult(intent, 3);
     }
 
@@ -88,56 +135,21 @@ public class MinhasPropostasActivity extends AppCompatActivity implements Minhas
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == 3) {
-            if (resultCode == RESULT_OK) {
+        if(requestCode == 3 && resultCode == RESULT_OK) {
+            usuarioQueVem = (Usuario) data.getSerializableExtra("usuario");
 
+            ArrayList<Casa> casasComProposta = (ArrayList<Casa>) data.getSerializableExtra("casasComProposta");
 
-                ListaDeUsuarios novalista = (ListaDeUsuarios) data.getSerializableExtra("listaDeUsuarios");
-                Usuario userATT = novalista.getDeterminadoUsuario(usuario.getId());
-                Log.d("DEBUG", "" + usuario);
-                Log.d("DEBUG", "" + userATT);
+            Log.d("debug", "chegou no result code do minhas propostas" + usuarioQueVem);
+            usuarioQueVem.setCasasComPedido(casasComProposta);
 
+            minhasCasasAdapter.setCasas(usuarioQueVem.getCasasComPedido());
+            minhasCasasAdapter.notifyDataSetChanged();
 
-                usuario = userATT;
-
-                Log.d("DEBUG", "" + usuario);
-
-
-                listaDeUsuarios.setUsersList(novalista.getUsersList());
-
-                Log.d("DEBUG", "" + novalista.getUsersList());
-
-                Log.d("DEBUG", "" + listaDeUsuarios.getUsersList());
-                minhasCasasAdapter.notifyDataSetChanged();
-
-                Intent newintent = new Intent();
-                Log.d("DEBUG", "" + listaDeUsuarios.getUsersList());
-
-                newintent.putExtra("listaDeUsuarios", listaDeUsuarios);
-                setResult(RESULT_OK, newintent);
-            } else if (resultCode == RESULT_CANCELED) {
-                ListaDeUsuarios novalista = (ListaDeUsuarios) data.getSerializableExtra("listaDeUsuarios");
-                Usuario userATT = novalista.getDeterminadoUsuario(usuario.getId());
-
-                usuario = userATT;
-
-                Log.d("DEBUG", "" + usuario);
-
-                listaDeUsuarios.setUsersList(novalista.getUsersList());
-
-                Log.d("DEBUG", "" + novalista.getUsersList());
-
-                Log.d("DEBUG", "" + listaDeUsuarios.getUsersList());
-                minhasCasasAdapter.notifyDataSetChanged();
-
-                Intent newintent = new Intent();
-                Log.d("DEBUG", "" + listaDeUsuarios.getUsersList());
-
-                newintent.putExtra("listaDeUsuarios", listaDeUsuarios);
-                setResult(RESULT_OK, newintent);
-            }
         }
     }
+
+
 
 
 }

@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.alugueaki.Models.Casa;
 import com.example.alugueaki.Models.Chat;
 import com.example.alugueaki.databinding.ChatItemBinding;
 
@@ -15,13 +17,18 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder> {
-    private final ArrayList<Chat> chatList;
+    private ArrayList<Chat> chatList;
     private final Context context;
 
     private OnItemClickListener itemClickListener;
 
     public interface OnItemClickListener {
         void onItemClicked(Chat chat);
+    }
+
+    public void setChats(ArrayList<Chat> chats) {
+        this.chatList = chats;
+        notifyDataSetChanged();
     }
 
 
@@ -54,11 +61,11 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
         Chat chat = chatList.get(position);
 
-        holder.binding.destinatarioNome.setText(chat.getUltimaMensagem().getRemetente().getNome());
+        holder.binding.destinatarioNome.setText(chat.getUltimaMensagem().getDestinatarioNome());
         holder.binding.ultimaMensagem.setText(chat.getUltimaMensagem().getConteudo());
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
-        holder.binding.horaDaMensagem.setText(chat.getUltimaMensagem().getDataHoraEnvio().format(formatter));
+        //holder.binding.horaDaMensagem.setText(chat.getUltimaMensagem().getDataHoraEnvio().format(formatter));
 
         holder.itemView.setOnClickListener(new View.OnClickListener(){
             @Override

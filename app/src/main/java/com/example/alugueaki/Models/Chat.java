@@ -7,33 +7,44 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class Chat implements Serializable {
-    Usuario usuarioRemetente;
-    Usuario usuarioDestinatario;
+
+    String id;
+    String usuarioRemetenteId;
+    String usuarioDestinatarioId;
+
+    String remetenteNome;
+
+    String destinatarioNome;
+
     ArrayList<Mensagem> mensagens =  new ArrayList<>();
 
 
-    public Chat(Usuario usuarioRemetente, Usuario usuarioDestinatario) {
-        this.usuarioRemetente = usuarioRemetente;
-        this.usuarioDestinatario = usuarioDestinatario;
+    public Chat(String id,String usuarioRemetenteId, String usuarioDestinatarioId,String remetenteNome,String destinatarioNome) {
+        this.id = id;
+        this.usuarioRemetenteId = usuarioRemetenteId;
+        this.usuarioDestinatarioId = usuarioDestinatarioId;
+        this.remetenteNome = remetenteNome;
+        this.destinatarioNome = destinatarioNome;
+        this.mensagens = mensagens;
     }
 
     public Chat() {
     }
 
-    public Usuario getUsuarioRemetente() {
-        return usuarioRemetente;
+    public String getUsuarioRemetente() {
+        return usuarioRemetenteId;
     }
 
-    public void setUsuarioRemetente(Usuario usuarioRemetente) {
-        this.usuarioRemetente = usuarioRemetente;
+    public void setUsuarioRemetente(String usuarioRemetente) {
+        this.usuarioRemetenteId = usuarioRemetente;
     }
 
-    public Usuario getUsuarioDestinatario() {
-        return usuarioDestinatario;
+    public String getUsuarioDestinatario() {
+        return usuarioDestinatarioId;
     }
 
-    public void setUsuarioDestinatario(Usuario usuarioDestinatario) {
-        this.usuarioDestinatario = usuarioDestinatario;
+    public void setUsuarioDestinatario(String usuarioDestinatario) {
+        this.usuarioDestinatarioId = usuarioDestinatario;
     }
 
     public ArrayList<Mensagem> getMensagens() {
@@ -45,24 +56,66 @@ public class Chat implements Serializable {
     }
 
     public Mensagem getUltimaMensagem(){
-        return mensagens.get(mensagens.size()-1);
+        if (mensagens != null && !mensagens.isEmpty()) {
+            return mensagens.get(mensagens.size() - 1);
+        } else {
+            return null;
+        }
     }
 
     @Override
     public String toString() {
         return "Chat{" +
-                "usuarioRemetente=" + usuarioRemetente +
-                ", usuarioDestinatario=" + usuarioDestinatario +
+                "id='" + id + '\'' +
+                ", usuarioRemetenteId='" + usuarioRemetenteId + '\'' +
+                ", usuarioDestinatarioId='" + usuarioDestinatarioId + '\'' +
+                ", remetenteNome='" + remetenteNome + '\'' +
+                ", destinatarioNome='" + destinatarioNome + '\'' +
                 ", mensagens=" + mensagens +
                 '}';
     }
+
     public void addMensagem(Mensagem mensagem){
         mensagens.add(mensagem);
     }
 
+    public String getId() {
+        return id;
+    }
 
+    public void setId(String id) {
+        this.id = id;
+    }
 
+    public String getUsuarioRemetenteId() {
+        return usuarioRemetenteId;
+    }
 
+    public void setUsuarioRemetenteId(String usuarioRemetenteId) {
+        this.usuarioRemetenteId = usuarioRemetenteId;
+    }
 
+    public String getUsuarioDestinatarioId() {
+        return usuarioDestinatarioId;
+    }
 
+    public void setUsuarioDestinatarioId(String usuarioDestinatarioId) {
+        this.usuarioDestinatarioId = usuarioDestinatarioId;
+    }
+
+    public String getRemetenteNome() {
+        return remetenteNome;
+    }
+
+    public void setRemetenteNome(String remetenteNome) {
+        this.remetenteNome = remetenteNome;
+    }
+
+    public String getDestinatarioNome() {
+        return destinatarioNome;
+    }
+
+    public void setDestinatarioNome(String destinatarioNome) {
+        this.destinatarioNome = destinatarioNome;
+    }
 }

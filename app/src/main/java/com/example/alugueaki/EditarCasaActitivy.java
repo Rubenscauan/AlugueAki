@@ -27,10 +27,15 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class EditarCasaActitivy extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener {
 
@@ -53,13 +58,17 @@ public class EditarCasaActitivy extends AppCompatActivity implements OnMapReadyC
         private EditText edtLocalizacao;
         private LatLng selectedLocation;
 
-        @Override
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+    @Override
         protected void onCreate (Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.editar_casa);
 
         casa = (Casa) getIntent().getSerializableExtra("casa");
         usuario = (Usuario) getIntent().getSerializableExtra("usuario");
+        Log.d("DEBUG", "casas do usuario: " + usuario.getCasasPAluguel());
+
 
 
 
@@ -184,15 +193,48 @@ public class EditarCasaActitivy extends AppCompatActivity implements OnMapReadyC
         edtDescricao.setText("");
 
         casa = c;
-        usuario.setDeterminadaCasaPAluguel(casa.getId(),casa);
-        Intent intent = new Intent();
+        DocumentReference usuarioRef = db.collection("usuarios").document(c.getUserId());
+        usuarioRef.get().addOnSuccessListener(documentSnapshot -> {
+            Usuario usuario = documentSnapshot.toObject(Usuario.class);
+            if (usuario != null) {
+                ArrayList<Casa> casasPAluguel = usuario.getCasasPAluguel();
+                    // Encontre a casa a ser editada no ArrayList
+                for (int i = 0; i < casasPAluguel.size(); i++) {
+                    Casa casaAntiga = casasPAluguel.get(i);
+                    if (casaAntiga.getId().equals(c.getId())) {
+                        // Substitua a casa antiga pela nova
+                        casasPAluguel.set(i, c);
 
-        intent.putExtra("usuario",usuario);
-        setResult(RESULT_OK, intent);
-        finish();
+                            // Atualize os dados no Firestore
+                        usuarioRef.update("casasPAluguel", casasPAluguel)
+                                .addOnSuccessListener(aVoid -> {
+                                    Log.d("DEBUG", "Casa editada com sucesso no Firestore");
+                                    Intent intent = new Intent();
+                                    Log.d("DEBUG",""+ usuario.getCasasPAluguel());
 
 
-    }
+                                    Log.d("DEBUG",""+ usuario.getCasasPAluguel());
+
+                                    intent.putExtra("usuario", usuario);
+                                    intent.putExtra("casasPAluguel", casasPAluguel);
+                                    setResult(RESULT_OK, intent);
+                                    finish();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e("ERROR", "Falha ao editar casa no Firestore", e);
+                                });
+                            break; // Interrompe o loop, pois a casa foi encontrada e atualizada
+                        }
+                    }
+                }
+            });
+        }
+
+
+
+
+
+
 
     public void limparLista(View view){
         edtTelefone.setText("");

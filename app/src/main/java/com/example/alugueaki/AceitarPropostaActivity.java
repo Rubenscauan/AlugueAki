@@ -9,14 +9,24 @@
     import android.widget.TextView;
     import android.widget.Toast;
 
+    import androidx.annotation.NonNull;
     import androidx.appcompat.app.AppCompatActivity;
 
     import com.example.alugueaki.Models.Casa;
     import com.example.alugueaki.Models.ListaDeUsuarios;
     import com.example.alugueaki.Models.Pedido;
     import com.example.alugueaki.Models.Usuario;
+    import com.google.android.gms.tasks.OnFailureListener;
+    import com.google.android.gms.tasks.OnSuccessListener;
+    import com.google.firebase.firestore.DocumentReference;
+    import com.google.firebase.firestore.DocumentSnapshot;
+    import com.google.firebase.firestore.FirebaseFirestore;
+    import com.google.firebase.firestore.Source;
 
+    import java.lang.reflect.Array;
     import java.util.ArrayList;
+    import java.util.HashMap;
+    import java.util.Map;
 
     public class AceitarPropostaActivity extends AppCompatActivity {
 
@@ -24,16 +34,16 @@
 
         Usuario usuario = new Usuario();
 
-        ListaDeUsuarios listaDeUsuarios = new ListaDeUsuarios();
+        Usuario pedinte = new Usuario();
 
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
 
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             casa = (Casa) getIntent().getSerializableExtra("casa");
             usuario = (Usuario) getIntent().getSerializableExtra("usuario");
-            int solicitanteId = getIntent().getIntExtra("solicitanteId", -1); // Obtém o ID do usuário solicitante
-            listaDeUsuarios = (ListaDeUsuarios) getIntent().getSerializableExtra("listaDeUsuarios");
             super.onCreate(savedInstanceState);
             setContentView(R.layout.aceitar_proposta);
 
@@ -41,58 +51,151 @@
             TextView textDescricao = findViewById(R.id.textDescricao);
             TextView textEndereco = findViewById(R.id.textEndereco);
 
-            textUsername.setText(listaDeUsuarios.getDeterminadoUsuario(solicitanteId).getNome());
+            textUsername.setText(casa.getPedido().getUsuarioNome());
             textDescricao.setText(casa.getDescricao());
             textEndereco.setText(casa.getEndereco());
 
-            Log.d("Debug","casas do usuario com pedido: "+ usuario.getCasasComPedido());
-            Log.d("Debug", "casas do pedinte " + listaDeUsuarios.getUsersList());
-            Log.d("DEBUG", "id da casa" + casa.getId());
+            Log.d("Debug","usuario: "+ usuario);
+            Log.d("DEBUG", "casa: " + casa);
         }
 
         public void aceitarProposta(View view){
-            Log.d("DEBUG",""+ listaDeUsuarios.getDeterminadoUsuario(casa.getPedido().getSolicitante().getId()));
+            ArrayList<Casa> casasQueOPedinteAlugou = new ArrayList<>();
+            DocumentReference pedinteRef = db.collection("usuarios").document(casa.getPedido().getUsuarioId());
+
+            pedinteRef.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        // Encontrou o documento do usuário
+                        ArrayList<Map<String, Object>> casasData = (ArrayList<Map<String, Object>>) document.get("casasQueAluguei");
+
+
+                        if (casasData != null) {
+                            for (Map<String, Object> casaData : casasData) {
+                                // Crie objetos Casa com os dados e adicione ao array todasAsCasas
+                                Casa casa = new Casa();
+                                casa.setNome((String) casaData.get("nome"));
+                                casa.setAluguel((String) casaData.get("aluguel"));
+                                casa.setDescricao((String) casaData.get("descricao"));
+                                casa.setTelefone((String) casaData.get("telefone"));
+                                casa.setLocalizacao((String) casaData.get("localizacao"));
+                                casa.setLatitude((Double) casaData.get("latitude"));
+                                casa.setLongitude((Double) casaData.get("longitude"));
+                                casa.setId((String) casaData.get("id"));
+
+
+                                if (casaData.containsKey("pedido")) {
+                                    Map<String, Object> pedidoData = (Map<String, Object>) casaData.get("pedido");
+
+                                    Pedido pedido = new Pedido();
+                                    pedido.setUsuarioId((String) pedidoData.get("usuarioId"));
+                                    pedido.setUsuarioNome((String) pedidoData.get("usuarioNome"));
+                                    casa.setPedido(pedido);
+                                }
+
+                                casa.setUserId((String) casaData.get("userId"));
+                                casa.setEndereco((String) casaData.get("endereco"));
+                                casa.setImagem(R.drawable.casa1);
+                                //falta carregar imagem certa
+                                casasQueOPedinteAlugou.add(casa);
+
+                            }
+                        }
+                    }
+                }
+            });
 
             usuario.removeCasaComPedido(casa.getId());
             usuario.removeCasaPAluguel(casa.getId());
             usuario.addCasaAlugada(casa);
+            casasQueOPedinteAlugou.add(casa);
 
-            Log.d("DEBUG",""+ listaDeUsuarios.getDeterminadoUsuario(casa.getPedido().getSolicitante().getId()));
+
+            DocumentReference donoDaCasaRef = db.collection("usuarios").document(casa.getUserId());
+
+            Map<String, Object> updates = new HashMap<>();
+            updates.put("casasAlugadas", usuario.getCasasAlugadas());
+            updates.put("casasComPedido", usuario.getCasasComPedido());
+            updates.put("casasPAluguel", usuario.getCasasPAluguel());
+
+            // Atualizar os dados do usuário no Firestore
+            donoDaCasaRef.update(updates)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                                        // Sucesso ao atualizar o Firestore
+                            Toast.makeText(AceitarPropostaActivity.this, "Proposta aceita com sucesso", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            // Falha ao atualizar o Firestore
+                            Toast.makeText(AceitarPropostaActivity.this, "Falha ao aceitar proposta", Toast.LENGTH_SHORT).show();
+                        }
+                    });
 
 
-            listaDeUsuarios.setUsuario(usuario.getId(),usuario);
 
-            Usuario pedinte = listaDeUsuarios.getDeterminadoUsuario(casa.getPedido().getSolicitante().getId());
 
-            pedinte.addCasaQueAluguei(casa);
 
-            listaDeUsuarios.setUsuario(casa.getPedido().getSolicitante().getId(), pedinte);
 
-            Log.d("DEBUG", "casas do dono" + usuario);
-            Log.d("DEBUG", "casas do pedinte" + pedinte);
-
-            Intent newintent = new Intent();
-            Log.d("DEBUG", ""+listaDeUsuarios.getUsersList());
-            newintent.putExtra("listaDeUsuarios", listaDeUsuarios);
-            setResult(RESULT_OK, newintent);
+            Map<String, Object> updatesPedinte = new HashMap<>();
+            updatesPedinte.put("casasQueAluguei",casasQueOPedinteAlugou);
+            pedinteRef.update(updatesPedinte)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            // Sucesso ao atualizar o Firestore
+                            Toast.makeText(AceitarPropostaActivity.this, "Proposta aceita com sucesso", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            // Falha ao atualizar o Firestore
+                            Toast.makeText(AceitarPropostaActivity.this, "Falha ao aceitar proposta", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+            Intent intent = new Intent();
+            intent.putExtra("usuario", usuario);
+            intent.putExtra("casasComProposta", usuario.getCasasComPedido());
+            setResult(RESULT_OK, intent);
             finish();
-            Toast.makeText(this, "Proposta Aceita", Toast.LENGTH_SHORT).show();
+
 
         }
 
         public void rejeitarProposta(View view){
             usuario.removeCasaComPedido(casa.getId());
 
-            listaDeUsuarios.setUsuario(usuario.getId(),usuario);
+            DocumentReference donoDaCasaRef = db.collection("usuarios").document(casa.getUserId());
 
-            Intent newintent = new Intent();
-            Log.d("DEBUG", ""+listaDeUsuarios.getUsersList());
-            newintent.putExtra("listaDeUsuarios", listaDeUsuarios);
-            setResult(RESULT_CANCELED, newintent);
+            Map<String, Object> updates = new HashMap<>();
+            updates.put("casasComPedido", usuario.getCasasComPedido());
+
+            // Atualizar os dados do usuário no Firestore
+            donoDaCasaRef.update(updates)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            // Sucesso ao atualizar o Firestore
+                            Toast.makeText(AceitarPropostaActivity.this, "Proposta rejeitada com sucesso", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            // Falha ao atualizar o Firestore
+                            Toast.makeText(AceitarPropostaActivity.this, "Falha ao rejeitar proposta", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+            Intent intent = new Intent();
+            intent.putExtra("usuario", usuario);
+            intent.putExtra("casasComProposta", usuario.getCasasComPedido());
+            setResult(RESULT_OK, intent);
             finish();
-
-            Toast.makeText(this, "Proposta Rejeitada", Toast.LENGTH_SHORT).show();
-
         }
 
         @Override

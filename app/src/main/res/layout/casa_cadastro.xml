@@ -139,12 +139,12 @@
             <ImageView
                 android:id="@+id/imagemCasa"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
+                android:layout_height="150dp"
                 android:scaleType="centerInside"
                 android:layout_marginTop="16dp"
-                android:layout_gravity="center_horizontal" /> Defina a imagem de espaço reservado como src inicial -->
+                android:layout_gravity="center_horizontal" />
 
-
+        </LinearLayout>-->
 
 
             <EditText
@@ -156,7 +156,7 @@
             <fragment xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
-                android:layout_height="370dp"
+                android:layout_height="350dp"
                 android:id="@+id/map"
                 tools:context=".MapsActivity"
                 android:name="com.google.android.gms.maps.SupportMapFragment" />

@@ -31,12 +31,5 @@
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/horaDaMensagem"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="10:30"
-        android:gravity="end"
-        android:textSize="12sp" />
 
 </LinearLayout>

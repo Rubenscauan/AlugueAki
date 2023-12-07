@@ -9,10 +9,9 @@ import java.util.List;
 
 
 public class Casa implements Serializable {
-    private int id;
-    private int userId; // Adicione um campo para armazenar o ID do usuário
+    private String userId; // Adicione um campo para armazenar o ID do usuário
 
-
+    private String id;
     private String nome;
     private String telefone;
     private String descricao;
@@ -33,8 +32,9 @@ public class Casa implements Serializable {
     public Casa(){
     }
 
-    public Casa(int userId, int id,String nome, String telefone, String descricao,String endereco, String localizacao, double latitude, double longitude, String aluguel, int imagem) {
+    public Casa(String userId,String id,String nome, String telefone, String descricao,String endereco, String localizacao, double latitude, double longitude, String aluguel, int imagem) {
         this.userId = userId;
+        this.id = id;
         this.nome = nome;
         this.telefone = telefone;
         this.descricao = descricao;
@@ -44,24 +44,23 @@ public class Casa implements Serializable {
         this.latitude = latitude;
         this.longitude = longitude;
         this.imagem = imagem;
-        this.id = id;
         this.pedido = pedido;
 
     }
 
-    public int getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

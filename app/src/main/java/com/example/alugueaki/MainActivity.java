@@ -6,20 +6,35 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import androidx.annotation.NonNull;
 
 import com.example.alugueaki.Adapter.CasaAdapter;
 import com.example.alugueaki.Models.ListaDeUsuarios;
 import com.example.alugueaki.Models.Usuario;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
+
 
 import com.example.alugueaki.Models.Casa;
 import com.example.alugueaki.databinding.ActivityMainBinding;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 
 public class MainActivity extends AppCompatActivity implements CasaAdapter.OnItemClickListener {
@@ -38,52 +53,99 @@ public class MainActivity extends AppCompatActivity implements CasaAdapter.OnIte
     ArrayList<Casa> todasAsCasas = new ArrayList<>();
     private int id;
 
-    Usuario usuarioteste = new Usuario();
-
-
-    ListaDeUsuarios listaDeUsuarios = new ListaDeUsuarios();
 
     private Casa casa = new Casa();
 
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    @Override
-    public void onItemClicked(Casa casa) {
-        Intent intent = new Intent(this, DetalhesCasaActivity.class);
-        intent.putExtra("casa", casa);
-        intent.putExtra("usuario", usuario);
-        intent.putExtra("listaDeUsuarios", listaDeUsuarios);
-        startActivityForResult(intent, REQUEST_CODE_FAZER_PEDIDO);
-    }
+    private FirebaseAuth mAuth;
+    private FirebaseUser currentUser;
+
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         usuario = (Usuario) getIntent().getSerializableExtra("usuario");
 
         id = (int) getIntent().getSerializableExtra("id");
 
-        listaDeUsuarios = (ListaDeUsuarios) getIntent().getSerializableExtra("listaDeUsuarios");
 
-        for (int i = 0; i < listaDeUsuarios.getUsersList().size(); i++) {
-            todasAsCasas.addAll(listaDeUsuarios.getDeterminadoUsuario(i).getCasasPAluguel());
-        }
-
-        super.onCreate(savedInstanceState);
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
+        String nomeDoUsuario = currentUser.getDisplayName();
+        Log.d("DEBUG", "casas do usuario: " + usuario.getCasasPAluguel());
 
 
-        RecyclerView recyclerViewCasa = binding.recyclerViewCasas1;
-        recyclerViewCasa.setLayoutManager(new LinearLayoutManager(this));
-        recyclerViewCasa.setHasFixedSize(true);
+        FirebaseFirestore.getInstance().collection("usuarios")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            String nome = document.getString("nome");
+                            String email = document.getString("email");
+                            ArrayList<Map<String, Object>> casasData = (ArrayList<Map<String, Object>>) document.get("casasPAluguel");
 
-        casaAdapter = new CasaAdapter(todasAsCasas, this, this);
-        recyclerViewCasa.setAdapter(casaAdapter);
 
-        casaAdapter.notifyDataSetChanged();
+                            if (casasData != null) {
+                                for (Map<String, Object> casaData : casasData) {
+                                    // Crie objetos Casa com os dados e adicione ao array todasAsCasas
+                                    Casa casa = new Casa();
+                                    casa.setNome((String) casaData.get("nome"));
+                                    casa.setAluguel((String) casaData.get("aluguel"));
+                                    casa.setDescricao((String) casaData.get("descricao"));
+                                    casa.setTelefone((String) casaData.get("telefone"));
+                                    casa.setLocalizacao((String) casaData.get("localizacao"));
+                                    casa.setLatitude((Double) casaData.get("latitude"));
+                                    casa.setLongitude((Double) casaData.get("longitude"));
+                                    casa.setId((String) casaData.get("id"));
+
+
+                                    casa.setUserId((String) casaData.get("userId"));
+                                    casa.setEndereco((String) casaData.get("endereco"));
+                                    casa.setImagem(R.drawable.casa1);
+                                    //falta carregar imagem certa
+
+                                    todasAsCasas.add(casa);
+                                    Log.d("debug", "todas as casas no momento = " + todasAsCasas);
+
+                                }
+
+                                // Configurar o adaptador e atualizar
+                                binding = ActivityMainBinding.inflate(getLayoutInflater());
+                                setContentView(binding.getRoot());
+                                getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+                                RecyclerView recyclerViewCasa = binding.recyclerViewCasas1;
+                                recyclerViewCasa.setLayoutManager(new LinearLayoutManager(this));
+                                recyclerViewCasa.setHasFixedSize(true);
+
+                                casaAdapter = new CasaAdapter(todasAsCasas, this, this);
+                                recyclerViewCasa.setAdapter(casaAdapter);
+
+                                casaAdapter.notifyItemInserted(todasAsCasas.size()-1);
+                            }
+
+                            // Faça algo com os dados obtidos (por exemplo, exibir no console ou em uma lista)
+                            Log.d("DADOS_USUARIO", "Nome: " + nome + ", Email: " + email + " , casas =" + casasData);
+                        }
+                    } else {
+                        // Falha ao obter dados
+                        Log.e("ERRO", "Falha ao obter dados de usuários.", task.getException());
+                    }
+                });
+
+
+
+        Log.d("debug","'-'"+todasAsCasas);
+
+
+
 
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -97,15 +159,14 @@ public class MainActivity extends AppCompatActivity implements CasaAdapter.OnIte
         if (item.getItemId() == R.id.config) {
             Intent intent = new Intent(this, OpcoesActitivy.class);
             intent.putExtra("usuario",usuario);
-            intent.putExtra("listaDeUsuarios", listaDeUsuarios);
             startActivityForResult(intent,REQUEST_CODE_MINHAS_CASAS);
             return true;
-        } else if (item.getItemId() == R.id.logout) {
+        }else if(item.getItemId() == R.id.logout) {
             Intent intent = new Intent();
             intent.putExtra("usuario", usuario);
-            intent.putExtra("listaDeUsuarios", listaDeUsuarios);
             intent.putExtra("id", id);
             setResult(RESULT_OK, intent);
+            FirebaseAuth.getInstance().signOut();
             finish();
             return true;
         }else if(item.getItemId() == R.id.addCasa){
@@ -114,8 +175,8 @@ public class MainActivity extends AppCompatActivity implements CasaAdapter.OnIte
             return true;
         }else if(item.getItemId() == R.id.chat){
             Intent intent = new Intent(this, ChatActivity.class);
-            intent.putExtra("listaDeUsuarios", listaDeUsuarios);
             intent.putExtra("usuario", usuario);
+            Log.d("debug", "usuario id" + usuario.getUid());
             startActivityForResult(intent, REQUEST_CODE_CHATS);
             return true;
         }
@@ -131,46 +192,8 @@ public class MainActivity extends AppCompatActivity implements CasaAdapter.OnIte
 
         if(requestCode == REQUEST_CODE_MINHAS_CASAS && resultCode == RESULT_OK){
 
-            ListaDeUsuarios novalista = (ListaDeUsuarios) data.getSerializableExtra("listaDeUsuarios");
-            listaDeUsuarios.setUsersList(novalista.getUsersList());
-
-            Log.d("DEBUG","Primeiro teste "+usuario);
-
             usuario = (Usuario) data.getSerializableExtra("usuario");
-
-            Log.d("DEBUG","segundo teste "+usuario);
-
-            listaDeUsuarios.setUsersList(novalista.getUsersList());
-            todasAsCasas.clear();
-            for(int i = 0; i < listaDeUsuarios.getUsersList().size(); i++){
-                todasAsCasas.addAll(listaDeUsuarios.getDeterminadoUsuario(i).getCasasPAluguel());
-            }
-            Log.d("DEBUG", "Lista de usuarios: " + listaDeUsuarios);
-            Log.d("DEBUG", "todas as casas" + todasAsCasas);
-
             casaAdapter.notifyDataSetChanged();
-        }
-
-
-        if(requestCode == REQUEST_CODE_FAZER_PEDIDO && resultCode == RESULT_OK) {
-            /*Casa casa = (Casa) data.getSerializableExtra("casa");
-            int userId = casa.getUserId();
-            Log.d("DEBUG", "casa recebida: " + casa);
-
-            Usuario usuario = listaDeUsuarios.getDeterminadoUsuario(userId);
-
-            for (int i = 0; i < usuario.getCasasPAluguel().size(); i++) {
-                if (usuario.getDeterminadaCasaPAluguel(i).getId() == casa.getId()) {
-                    Log.d("DEBUG", "casa obtida: " + casa);
-                    usuario.addPedidoDeCasa(casa);
-                    listaDeUsuarios.setUsuario(userId,usuario);
-                    Log.d("DEBUG", "Usuario dentro do for" + listaDeUsuarios.getDeterminadoUsuario(userId));
-                    break;
-                }
-            }*/
-            listaDeUsuarios = (ListaDeUsuarios) data.getSerializableExtra("listaDeUsuarios");
-
-            Log.d("DEBUG", "" + listaDeUsuarios);
         }
 
 
@@ -178,46 +201,81 @@ public class MainActivity extends AppCompatActivity implements CasaAdapter.OnIte
 
             Casa novaCasa = (Casa) data.getSerializableExtra("novaCasa");
 
-            Casa casa = new Casa(
-                    usuario.getId(),
-                    id,
-                    usuario.getNome(),
-                    novaCasa.getTelefone(),
-                    novaCasa.getDescricao(),
-                    novaCasa.getEndereco(),
-                    novaCasa.getLocalizacao(),
-                    novaCasa.getLatitude(),
-                    novaCasa.getLongitude(),
-                    "R$:" + novaCasa.getAluguel(),
-                    R.drawable.casa1);
+            DocumentReference usuarioRef = db.collection("usuarios").document(currentUser.getUid());
+
+            //adquire o nome do usuario e constroi a casa para adicionar no BD
+
+            usuarioRef.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        // Documento encontrado, você pode acessar os dados
+                        String nomeUsuario = document.getString("nome");
+
+                        String idCasa = db.collection("casas").document().getId();
+                        Casa casa = new Casa(
+                                currentUser.getUid(),
+                                idCasa,
+                                nomeUsuario,
+                                novaCasa.getTelefone(),
+                                novaCasa.getDescricao(),
+                                novaCasa.getEndereco(),
+                                novaCasa.getLocalizacao(),
+                                novaCasa.getLatitude(),
+                                novaCasa.getLongitude(),
+                                "R$:" + novaCasa.getAluguel(),
+                                R.drawable.casa1);
+
+                        // Adicionar a nova casa ao array 'casasPAluguel' do usuário
+                        usuario.addCasaPAlugar(casa);
+                        todasAsCasas.add(casa);
+                        casaAdapter.notifyDataSetChanged();
+
+                        // Atualizar o array 'casasPAluguel' e o ID da nova casa no Firestore
+                        Map<String, Object> updateData = new HashMap<>();
+                        updateData.put("casasPAluguel", usuario.getCasasPAluguel());
 
 
-            usuario.addCasaPAlugar(casa);
+                        usuarioRef.update(updateData)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        // Sucesso ao atualizar o Firestore
+                                        Toast.makeText(MainActivity.this, "Casa adicionada com sucesso", Toast.LENGTH_SHORT).show();
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        // Falha ao atualizar o Firestore
+                                        Toast.makeText(MainActivity.this, "Falha ao adicionar a casa", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                    } else {
+                        Log.d("DEBUG", "Documento não encontrado");
+                    }
+                } else {
+                    Log.d("DEBUG", "Falha ao obter dados do Firestore: ", task.getException());
+                }
+            });
 
-            todasAsCasas.add(casa);
 
-            casaAdapter.notifyDataSetChanged();
-            listaDeUsuarios.setUsuario(usuario.getId(),usuario);
 
-            Log.d("DEBUG","Todas as casas: " + todasAsCasas);
-
-            Log.d("DEBUG", "Lista de usuarios: " + listaDeUsuarios);
-
-            Log.d("DEBUG", "casa adicionada: " + usuario.getCasasPAluguel());
-
-            Log.d("DEBUG", "id no momento: " + id);
 
         }
 
-        if(requestCode == REQUEST_CODE_CHATS && resultCode == RESULT_OK){
-            listaDeUsuarios = (ListaDeUsuarios) data.getSerializableExtra("listaDeUsuarios");
+        if(requestCode == 4 && resultCode == RESULT_OK){
+            usuario = (Usuario) data.getSerializableExtra("usuario");
         }
 
     }
 
 
-
-
-
-
+    @Override
+    public void onItemClicked(Casa casa) {
+        Intent intent = new Intent(this, DetalhesCasaActivity.class);
+        intent.putExtra("casa", casa);
+        intent.putExtra("usuario", usuario);
+        startActivityForResult(intent,4);
+    }
 }

@@ -5,8 +5,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class Usuario implements Serializable {
-    private int id;
     private String nome;
+
+    private String uid;
+
+    private String email;
     private String senha;
 
     private ArrayList<Casa> casasPAluguel = new ArrayList<>();
@@ -17,18 +20,28 @@ public class Usuario implements Serializable {
 
     private ArrayList<Casa> casasQueAluguei = new ArrayList<>();
 
+    private ArrayList<Chat> chats = new ArrayList<>();
 
 
-    public Usuario(int id, String nome, String senha) {
-        this.id = id;
+    public Usuario(String uid, String nome,String email) {
+        this.uid = uid;
         this.nome = nome;
+        this.email = email;
         this.senha = senha;
         this.casasAlugadas = new ArrayList<>();
         this.casasPAluguel = new ArrayList<>();
         this.casasComPedido = new ArrayList<>();
         this.casasQueAluguei = new ArrayList<>();
+        this.chats = new ArrayList<>();
     }
 
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
 
     public ArrayList<Casa> getCasasQueAluguei() {
         return casasQueAluguei;
@@ -46,20 +59,22 @@ public class Usuario implements Serializable {
         this.casasComPedido = casasComPedido;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public Usuario(){}
 
-    public int getId() {
-        return id;
-    }
 
-    public void setId(int id) {
-        this.id = id;
-    }
     public Casa getDeterminadaCasaPAluguel(int i ){
         return casasPAluguel.get(i);
     }
 
-    public void modificarCasaPAluguelPorId(int idDesejado, Casa casaModificada) {
+    public void modificarCasaPAluguelPorId(String idDesejado, Casa casaModificada) {
         for (Casa casa : casasPAluguel) {
             if (casa.getId() == idDesejado) {
                 casa.setNome(casaModificada.getNome());
@@ -81,8 +96,7 @@ public class Usuario implements Serializable {
     @Override
     public String toString() {
         return "Usuario{" +
-                "id= " + id +
-                ", nome='" + nome +
+                "nome='" + nome +
                 ", casasPAluguel=" + casasPAluguel +
                 ", casasAlugadas=" + casasAlugadas +
                 ", casasComPedido" + casasComPedido +
@@ -135,28 +149,28 @@ public class Usuario implements Serializable {
     }
     public void addPedidoDeCasa(Casa casa) {this.casasComPedido.add(casa);}
 
-    public void removeCasaComPedido(int id) {
+    public void removeCasaComPedido(String id) {
         ArrayList<Casa> copiaCasasComPedido = new ArrayList<>(casasComPedido);
         for (Casa casa : copiaCasasComPedido) {
-            if (id == casa.getId()) {
+            if (id.equals(casa.getId())) {
                 casasComPedido.remove(casa);
             }
         }
     }
 
-    public void removeCasaAlugada(int id) {
+    public void removeCasaAlugada(String id) {
         ArrayList<Casa> copiaCasasAlugadas = new ArrayList<>(casasAlugadas);
         for (Casa casa : copiaCasasAlugadas) {
-            if (id == casa.getId()) {
+            if (id.equals(casa.getId())) {
                 casasAlugadas.remove(casa);
             }
         }
     }
 
-    public void removeCasaQueAluguei(int id) {
+    public void removeCasaQueAluguei(String id) {
         ArrayList<Casa> copiaCasasQueAluguei = new ArrayList<>(casasQueAluguei);
         for (Casa casa : copiaCasasQueAluguei) {
-            if (id == casa.getId()) {
+            if (id.equals(casa.getId())) {
                 casasQueAluguei.remove(casa);
             }
         }
@@ -165,10 +179,10 @@ public class Usuario implements Serializable {
 
 
 
-    public void removeCasaPAluguel(int id) {
+    public void removeCasaPAluguel(String id) {
         ArrayList<Casa> copiaCasasPAluguel = new ArrayList<>(casasPAluguel);
         for (Casa casa : copiaCasasPAluguel) {
-            if (id == casa.getId()) {
+            if (id.equals(casa.getId())) {
                 casasPAluguel.remove(casa);
             }
         }
@@ -178,4 +192,24 @@ public class Usuario implements Serializable {
 
     public void addCasaAlugada (Casa casa) {this.casasAlugadas.add(casa);}
 
+    public ArrayList<Chat> getChats() {
+        return chats;
+    }
+
+    public void setChats(ArrayList<Chat> chats) {
+        this.chats = chats;
+    }
+
+    public void addChat(Chat chat){
+        chats.add(chat);
+    }
+
+    public void substituirChat(String idChatAntigo, Chat novoChat) {
+        for (int i = 0; i < chats.size(); i++) {
+            if (idChatAntigo.equals(chats.get(i).getId())) {
+                chats.set(i, novoChat);
+                break;
+            }
+        }
+    }
 }

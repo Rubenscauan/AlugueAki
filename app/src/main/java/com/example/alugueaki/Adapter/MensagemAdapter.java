@@ -51,11 +51,11 @@ public class MensagemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (holder.getItemViewType() == VIEW_TYPE_REMETENTE) {
             // Lidar com a visualização do remetente
             RemetenteViewHolder remetenteHolder = (RemetenteViewHolder) holder;
-            remetenteHolder.binding.RemetenteTextView.setText(mensagem.getRemetente().getNome());
+            remetenteHolder.binding.RemetenteTextView.setText(mensagem.getRemetenteNome());
             remetenteHolder.binding.mensagemTextView.setText(mensagem.getConteudo());
         } else {
             DestinatarioViewHolder destinatarioHolder = (DestinatarioViewHolder) holder;
-            destinatarioHolder.binding.textDestinatario.setText(mensagem.getRemetente().getNome());
+            destinatarioHolder.binding.textDestinatario.setText(mensagem.getRemetenteNome());
             destinatarioHolder.binding.textMessagem.setText(mensagem.getConteudo());
         }
     }
@@ -63,7 +63,7 @@ public class MensagemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public int getItemViewType(int position) {
         Mensagem mensagem = mensagens.get(position);
-        if (mensagem.isRemetente()) {
+        if (mensagem.GetIsRemetente()) {
             return VIEW_TYPE_REMETENTE;
         } else {
             return VIEW_TYPE_DESTINATARIO;

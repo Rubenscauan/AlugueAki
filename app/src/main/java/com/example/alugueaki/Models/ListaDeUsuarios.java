@@ -22,8 +22,8 @@ public class ListaDeUsuarios implements Serializable {
         usersList.add(usuario);
     }
 
-    public Usuario getDeterminadoUsuario(int i ){
-        return usersList.get(i);
+    public Usuario getDeterminadoUsuario(String id){
+        return usersList.get(Integer.parseInt(id));
     }
 
     @Override
@@ -62,7 +62,7 @@ public class ListaDeUsuarios implements Serializable {
         this.chats = chats;
     }
 
-    public Chat getDeterminadoChat(int remetenteId,int destinatarioId) {
+    /*public Chat getDeterminadoChat(int remetenteId,int destinatarioId) {
         for (Chat chat : chats) {
             if (chat.getUsuarioRemetente().getId() == remetenteId && chat.getUsuarioDestinatario().getId() == destinatarioId)
                 return chat;
@@ -77,5 +77,5 @@ public class ListaDeUsuarios implements Serializable {
                 return;
             }
         }
-    }
+    }*/
 }

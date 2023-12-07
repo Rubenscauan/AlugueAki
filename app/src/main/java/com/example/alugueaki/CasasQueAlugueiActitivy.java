@@ -22,12 +22,10 @@ public class CasasQueAlugueiActitivy extends AppCompatActivity implements Minhas
     private MinhasCasasAdapter minhasCasasAdapter;
     Usuario usuario =  new Usuario();
 
-    ListaDeUsuarios listaDeUsuarios = new ListaDeUsuarios();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         usuario = (Usuario) getIntent().getSerializableExtra("usuario");
-        listaDeUsuarios = (ListaDeUsuarios) getIntent().getSerializableExtra("listaDeUsuarios");
 
         Log.d("DEBUG", "Casas= " + usuario.getCasasQueAluguei());
 
@@ -58,7 +56,6 @@ public class CasasQueAlugueiActitivy extends AppCompatActivity implements Minhas
             Intent intent = new Intent();
             setResult(RESULT_OK,intent);
             intent.putExtra("usuario",usuario);
-            intent.putExtra("listaDeUsuarios",listaDeUsuarios);
             finish();
             return true;
         } else {
@@ -70,7 +67,6 @@ public class CasasQueAlugueiActitivy extends AppCompatActivity implements Minhas
     public void onItemClicked(Casa casa) {
         Intent intent = new Intent(this, DetalhesCasaQueAluguei.class);
         intent.putExtra("casa", casa);
-        intent.putExtra("listaDeUsuarios",listaDeUsuarios);
         intent.putExtra("usuario",usuario);
         startActivityForResult(intent, 3);
     }
@@ -80,10 +76,7 @@ public class CasasQueAlugueiActitivy extends AppCompatActivity implements Minhas
         super.onActivityResult(requestCode, resultCode, data);
 
         if(requestCode == 3 && resultCode ==  RESULT_OK){
-            Log.d("DEBUG",""+ listaDeUsuarios);
             usuario = (Usuario) data.getSerializableExtra("usuario");
-            listaDeUsuarios = (ListaDeUsuarios) data.getSerializableExtra("listaDeUsuarios");
-            Log.d("DEBUG",""+ listaDeUsuarios);
             Log.d("debug", "" + usuario);
             minhasCasasAdapter.notifyDataSetChanged();
 

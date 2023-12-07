@@ -16,13 +16,18 @@ import java.util.ArrayList;
 public class MinhasCasasAdapter extends RecyclerView.Adapter<MinhasCasasAdapter.CasaViewHolder>{
 
 
-    private final ArrayList<Casa> casaList;
+    private ArrayList<Casa> casaList;
     private final Context context;
 
     private OnItemClickListener itemClickListener;
 
     public interface OnItemClickListener {
         void onItemClicked(Casa casa);
+    }
+
+    public void setCasas(ArrayList<Casa> casas) {
+        this.casaList = casas;
+        notifyDataSetChanged();
     }
 
     public MinhasCasasAdapter(ArrayList<Casa> casaList, Context context, MinhasCasasAdapter.OnItemClickListener itemClickListener) {

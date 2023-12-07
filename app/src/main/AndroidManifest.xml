@@ -45,20 +45,25 @@
         </activity>
 
         <activity
-            android:name=".MinhasPropostasActivity"
+            android:name=".RegisterActitivy"
             android:exported="true">
         </activity>
 
         <activity android:name=".DetalhesCasaActivity"
-                android:exported="true">
+            android:exported="true">
         </activity>
 
-        <activity android:name=".AceitarPropostaActivity"
-                  android:exported="true">
+        <activity
+            android:name=".MinhasPropostasActivity"
+            android:exported="true">
         </activity>
 
         <activity
             android:name=".OpcoesActitivy"
+            android:exported="true">
+        </activity>
+
+        <activity android:name=".AceitarPropostaActivity"
             android:exported="true">
         </activity>
 
@@ -68,17 +73,12 @@
         </activity>
 
         <activity
-            android:name=".CasasAlugadasActitivy"
-            android:exported="true">
-        </activity>
-
-        <activity
-            android:name=".CasasQueAlugueiActitivy"
-            android:exported="true">
-        </activity>
-
-        <activity
             android:name=".EditarCasaActitivy"
+            android:exported="true">
+        </activity>
+
+        <activity
+            android:name=".CasasAlugadasActitivy"
             android:exported="true">
         </activity>
 
@@ -88,14 +88,21 @@
         </activity>
 
         <activity
-            android:name=".ChatActivity"
+            android:name=".DetalhesCasaQueAluguei"
             android:exported="true">
         </activity>
 
         <activity
-            android:name=".DetalhesCasaQueAluguei"
+            android:name=".CasasQueAlugueiActitivy"
             android:exported="true">
         </activity>
+
+        <activity
+            android:name=".ChatActivity"
+            android:exported="true">
+        </activity>
+
+
 
         <activity
             android:name=".MensagemActitivy"

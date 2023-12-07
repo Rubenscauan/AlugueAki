@@ -1,7 +1,5 @@
 package com.example.alugueaki;
 
-import static android.content.ContentValues.TAG;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,26 +7,17 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.alugueaki.Models.Casa;
 import com.example.alugueaki.Models.ListaDeUsuarios;
 import com.example.alugueaki.Models.Usuario;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
 
-    ListaDeUsuarios listaDeUsuarios = new ListaDeUsuarios();
 
     private FirebaseAuth mAuth;
 
@@ -36,6 +25,8 @@ public class LoginActivity extends AppCompatActivity {
     Usuario usuario = new Usuario();
     EditText edtNome;
     EditText edtSenha;
+
+    EditText edtEmail;
 
     private int id = 0;
 
@@ -46,103 +37,73 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.user_cadastro);
-;
+        setContentView(R.layout.login_actitivy);
+        mAuth = FirebaseAuth.getInstance();
 
-        db.collection("users")
-                .add(listaDeUsuarios)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error adding document", e);
-                    }
-                });
-
-
-
-
-        edtNome = findViewById(R.id.edtUsername);
+        edtEmail = findViewById(R.id.edtEmail);
         edtSenha = findViewById(R.id.edtPassword);
     }
 
     public void realizarLogin(View view) {
-        String nome = edtNome.getText().toString();
+
+        String email = edtEmail.getText().toString();
         String senha = edtSenha.getText().toString();
 
-        Usuario usuarioExistente = listaDeUsuarios.getUsuarioPeloNome(nome);
-
-        if(senha.equals("")){
-            Toast.makeText(this, "Senha nao pode ser vazia", Toast.LENGTH_SHORT).show();
-        }
-        else if(nome.equals("")){
-            Toast.makeText(this, "Nome nao pode ser vazio", Toast.LENGTH_SHORT).show();
-        }
-        else if (usuarioExistente == null) {
-            Usuario novoUsuario = new Usuario(id, nome, senha);
-            listaDeUsuarios.addUsuario(novoUsuario);
-            id++;
-
-
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.putExtra("usuario", novoUsuario);
-            intent.putExtra("listaDeUsuarios", listaDeUsuarios);
-            intent.putExtra("id", id);
-            Toast.makeText(this, "Usuario " + nome + " cadastrado com id " + id , Toast.LENGTH_SHORT).show();
-            startActivityForResult(intent, 1);
-
-        }
-
-        else if (usuarioExistente.getSenha().equals(senha)) {
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.putExtra("usuario", usuarioExistente);
-            intent.putExtra("listaDeUsuarios", listaDeUsuarios);
-            intent.putExtra("id", id);
-            Toast.makeText(this, "Bem vindo " + nome, Toast.LENGTH_SHORT).show();
-            startActivityForResult(intent, 1);
-
+        if (senha.equals("")) {
+            Toast.makeText(this, "Senha não pode ser vazia", Toast.LENGTH_SHORT).show();
+        } else if (email.equals("")) {
+            Toast.makeText(this, "E-mail não pode ser vazio", Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, "Senha incorreta", Toast.LENGTH_SHORT).show();
+            mAuth.signInWithEmailAndPassword(email, senha)
+                    .addOnCompleteListener(this, task -> {
+                        if (task.isSuccessful()) {
+                            FirebaseUser firebaseUser = mAuth.getCurrentUser();
+
+                            String uid = mAuth.getCurrentUser().getUid();
+
+                            verificarUsuarioNoFirestore(uid);
+
+
+                        } else {
+                            // Se o login falhar, exiba uma mensagem para o usuário.
+                            Toast.makeText(this, "Autenticação falhou.", Toast.LENGTH_SHORT).show();
+                        }
+
+
+                    });
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    public void realizarCadastro(View view){
+        Intent intent = new Intent(this,  RegisterActitivy.class);
+        startActivity(intent);
+    }
 
-        if (resultCode == RESULT_OK && requestCode == 1) {
+    private void verificarUsuarioNoFirestore(String userId) {
+        FirebaseFirestore.getInstance().collection("usuarios")
+                .document(userId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        if (task.getResult().exists()) {
+                            // O usuário existe no Firestore
+                            Usuario usuario = task.getResult().toObject(Usuario.class);
 
-            usuario = (Usuario) data.getSerializableExtra("usuario");
-            Log.d("DEBUG", "usuario chegando no login: "+ usuario);
+                            Intent intent = new Intent(this, MainActivity.class);
+                            intent.putExtra("usuario", usuario);
+                            intent.putExtra("id", id);
+                            startActivity(intent);
 
+                            Toast.makeText(this, "Bem-vindo de volta, " + usuario.getNome(), Toast.LENGTH_SHORT).show();
 
-            listaDeUsuarios = (ListaDeUsuarios) data.getSerializableExtra("listaDeUsuarios");
-            Log.d("DEBUG", "lista de usuarios chegando no login: "+ listaDeUsuarios);
-            //listaDeUsuarios.setUsersList(novalista.getUsersList());
-            //listaDeUsuarios.setChats(novalista.getChats());
-            Log.d("DEBUG", "Teste da lista de user: " + listaDeUsuarios.getChats());
-
-            Log.d("DEBUG", "lista de usuarios sendo editado no login: "+ listaDeUsuarios);
-
-
-            for(int i = 0 ;i < listaDeUsuarios.getUsersList().size(); i++){
-                if(listaDeUsuarios.getDeterminadoUsuario(i).getNome().equals(usuario.getNome())) {
-                    listaDeUsuarios.setUsuario(i,usuario);
-                    Log.d("DEBUG","usuario sendo setado:  "+ usuario);
-                }
-            }
-
-            id = (int) data.getSerializableExtra("id");
-
-            Log.d("DEBUG",""+ usuario);
-            Log.d("DEBUG", ""+ listaDeUsuarios);
-            Log.d("DEBUG", "id no momento: " + id);
-
-        }
+                        } else {
+                            // O usuário não existe no Firestore
+                            Toast.makeText(this, "Usuário não encontrado. Registre-se primeiro.", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        // Falha ao consultar o Firestore
+                        Toast.makeText(this, "Falha ao verificar usuário. Tente novamente.", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 }

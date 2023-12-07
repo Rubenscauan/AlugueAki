@@ -1,16 +1,21 @@
 package com.example.alugueaki;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.example.alugueaki.Models.Casa;
 import com.example.alugueaki.Models.Usuario;
 import com.google.android.gms.common.api.Status;
@@ -60,6 +65,13 @@ public class EditarCasaActitivy extends AppCompatActivity implements OnMapReadyC
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+        private static final int REQUEST_CODE_PICK_IMAGE = 2;
+        private Uri selectedImageUri;
+
+        private Button selecionarImagemButton;
+
+
+    @SuppressLint("MissingInflatedId")
     @Override
         protected void onCreate (Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -91,8 +103,13 @@ public class EditarCasaActitivy extends AppCompatActivity implements OnMapReadyC
         edtEndereco.setText(casa.getEndereco());
         edtLocalizacao.setText(casa.getLocalizacao());
 
+        selectedImageUri = Uri.parse(casa.getImagemURL());
+
         edtLocalizacao.setFocusable(false);
         edtLocalizacao.setOnClickListener(v -> startPlacePicker());
+
+        selecionarImagemButton = findViewById(R.id.selecionarImagemButton);
+        selecionarImagemButton.setOnClickListener(this::selecionarImagem);
 
     }
 
@@ -146,23 +163,32 @@ public class EditarCasaActitivy extends AppCompatActivity implements OnMapReadyC
         protected void onActivityResult ( int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == AutocompleteActivity.RESULT_ERROR) {
-            if (resultCode == RESULT_OK) {
-                Place place = Autocomplete.getPlaceFromIntent(data);
-                selectedLocation = place.getLatLng();
+            if (requestCode == AutocompleteActivity.RESULT_ERROR) {
+                if (resultCode == RESULT_OK && data != null) {
+                    try {
+                        Place place = Autocomplete.getPlaceFromIntent(data);
+                        selectedLocation = place.getLatLng();
+                        latitude = selectedLocation.latitude;
+                        longitude = selectedLocation.longitude;
+                        // Atualize o campo de texto com o nome do lugar selecionado
+                        edtLocalizacao.setText(place.getName());
 
-                latitude = selectedLocation.latitude;
-                longitude = selectedLocation.longitude;
-
-
-                edtLocalizacao.setText(place.getName());
-
-                // Atualize o marcador no mapa
-                updateMapMarker(selectedLocation);
-            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
-                Status status = Autocomplete.getStatusFromIntent(data);
+                        // Atualize o marcador no mapa
+                        updateMapMarker(selectedLocation);
+                    }catch (IllegalArgumentException e) {
+                        e.printStackTrace();
+                    }
+                } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+                    Status status = Autocomplete.getStatusFromIntent(data);
+                }
             }
-        }
+            if (requestCode == REQUEST_CODE_PICK_IMAGE && resultCode == RESULT_OK && data != null) {
+                selectedImageUri = data.getData();
+
+                // Exemplo de como exibir a imagem usando Glide (você pode usar uma ImageView na sua UI)
+                ImageView imageView = findViewById(R.id.imagemCasa);
+                Glide.with(this).load(selectedImageUri).into(imageView);
+            }
     }
 
         private void updateMapMarker (LatLng location){
@@ -179,10 +205,11 @@ public class EditarCasaActitivy extends AppCompatActivity implements OnMapReadyC
         String endereco = edtEndereco.getText().toString();
         String localizacao = edtLocalizacao.getText().toString();
 
+
         Log.d("DEBUG", "Aluguel: " + aluguel);
 
 
-        Casa c = new Casa(casa.getUserId(), casa.getId(), casa.getNome(), telefone, descricao, endereco, localizacao, latitude, longitude, aluguel, R.drawable.casa1);
+        Casa c = new Casa(casa.getUserId(), casa.getId(), casa.getNome(), telefone, descricao, endereco, localizacao, latitude, longitude, aluguel,selectedImageUri.toString());
 
 
         Log.d("DEBUG", "Nova casa: " + latitude + " " + longitude);
@@ -271,5 +298,8 @@ public class EditarCasaActitivy extends AppCompatActivity implements OnMapReadyC
     }
 
 
-
+    private void selecionarImagem(View view) {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, REQUEST_CODE_PICK_IMAGE);
+    }
 }

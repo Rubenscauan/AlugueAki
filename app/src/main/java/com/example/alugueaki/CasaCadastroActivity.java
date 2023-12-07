@@ -8,6 +8,7 @@ import android.Manifest;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -61,10 +62,18 @@ public class CasaCadastroActivity extends AppCompatActivity implements OnMapRead
     private PlacesClient placesClient;
 
     private Button selecionarLocalButton;
+    private Button selecionarImagemButton;
+
     private EditText edtLocalizacao;
     private LatLng selectedLocation;
 
     private FusedLocationProviderClient fusedLocationClient;
+
+    private static final int REQUEST_CODE_PICK_IMAGE = 2;
+    private Uri selectedImageUri;
+
+
+
 
 
     @Override
@@ -97,6 +106,9 @@ public class CasaCadastroActivity extends AppCompatActivity implements OnMapRead
         edtDescricao = findViewById(R.id.edtDescricao);
         edtAluguel = findViewById(R.id.edtAluguel);
         edtEndereco = findViewById(R.id.edtEndereco);
+
+        selecionarImagemButton = findViewById(R.id.selecionarImagemButton);
+        selecionarImagemButton.setOnClickListener(this::selecionarImagem);
     }
 
     private void startPlacePicker() {
@@ -221,20 +233,30 @@ public class CasaCadastroActivity extends AppCompatActivity implements OnMapRead
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == AutocompleteActivity.RESULT_ERROR) {
-            if (resultCode == RESULT_OK) {
-                Place place = Autocomplete.getPlaceFromIntent(data);
-                selectedLocation = place.getLatLng();
-                latitude = selectedLocation.latitude;
-                longitude = selectedLocation.longitude;
-                // Atualize o campo de texto com o nome do lugar selecionado
-                edtLocalizacao.setText(place.getName());
+            if (resultCode == RESULT_OK && data != null) {
+                try {
+                    Place place = Autocomplete.getPlaceFromIntent(data);
+                    selectedLocation = place.getLatLng();
+                    latitude = selectedLocation.latitude;
+                    longitude = selectedLocation.longitude;
+                    // Atualize o campo de texto com o nome do lugar selecionado
+                    edtLocalizacao.setText(place.getName());
 
-                // Atualize o marcador no mapa
-                updateMapMarker(selectedLocation);
+                    // Atualize o marcador no mapa
+                    updateMapMarker(selectedLocation);
+                }catch (IllegalArgumentException e) {
+                    e.printStackTrace();
+                }
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
                 Status status = Autocomplete.getStatusFromIntent(data);
-                // Lide com erros aqui
             }
+        }
+        if (requestCode == REQUEST_CODE_PICK_IMAGE && resultCode == RESULT_OK && data != null) {
+            selectedImageUri = data.getData();
+
+            // Exemplo de como exibir a imagem usando Glide (você pode usar uma ImageView na sua UI)
+            ImageView imageView = findViewById(R.id.imagemCasa);
+            Glide.with(this).load(selectedImageUri).into(imageView);
         }
     }
 
@@ -259,11 +281,11 @@ public class CasaCadastroActivity extends AppCompatActivity implements OnMapRead
             return;
         }
 
-        Log.d("DEBUG", "Aluguel: " + aluguel);
-        Casa c = new Casa("","","", telefone, descricao,endereco, localizacao, latitude, longitude, aluguel, 0);
-        Log.d("DEBUG", "Nova casa: " + latitude + " " + longitude);
+        Casa c = new Casa("","","", telefone, descricao,endereco, localizacao, latitude, longitude, aluguel, selectedImageUri.toString());
 
-        // Limpa os campos após adicionar uma casa
+        Log.d("debug", "Uri da casa" + c.getImagemURL());
+        Log.d("debug", "casa completa" + c);
+
         edtTelefone.setText("");
         edtAluguel.setText("");
         edtDescricao.setText("");
@@ -296,25 +318,14 @@ public class CasaCadastroActivity extends AppCompatActivity implements OnMapRead
         }
     }
 
+*/
+    private void selecionarImagem(View view) {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, REQUEST_CODE_PICK_IMAGE);
+    }
 
 
 
-    private void exibirMensagemErro(String mensagem) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(mensagem)
-                .setPositiveButton("OK", null)
-                .show();
-    }*/
-
-    /*public void limparLista(View view){
-        edtNome.setText("");
-        edtTelefone.setText("");
-        edtEndereco.setText("");
-        edtAluguel.setText("");
-        edtDescricao.setText("");
-        imagemCasa = 0;
-        // Limpar a exibição da lista ou tomar outras medidas, se necessário
-    }*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

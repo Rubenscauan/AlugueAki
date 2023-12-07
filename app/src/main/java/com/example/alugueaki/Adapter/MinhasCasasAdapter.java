@@ -8,7 +8,9 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.alugueaki.Models.Casa;
+import com.example.alugueaki.R;
 import com.example.alugueaki.databinding.MinhasCasasItemBinding;
 
 import java.util.ArrayList;
@@ -61,8 +63,11 @@ public class MinhasCasasAdapter extends RecyclerView.Adapter<MinhasCasasAdapter.
     public void onBindViewHolder(@NonNull CasaViewHolder holder, int position) {
         Casa casa = casaList.get(position);
 
-        // Carregue a imagem usando o Glide
-        holder.binding.ImagemCasa.setImageResource(casa.getImagem());
+        Glide.with(context)
+                .load(casa.getImagemURL())  // Substitua getImagemUrl() pelo método correto em seu modelo Casa que fornece a URL ou o recurso da imagem
+                .centerCrop()
+                .placeholder(R.drawable.casa1)  // Substitua R.drawable.placeholder pelo seu recurso de placeholder
+                .into(holder.binding.ImagemCasa);
 
 
         holder.binding.txtDescricao.setText(casa.getDescricao());

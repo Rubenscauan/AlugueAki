@@ -5,6 +5,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 
@@ -104,8 +105,7 @@ public class MainActivity extends AppCompatActivity implements CasaAdapter.OnIte
 
                                     casa.setUserId((String) casaData.get("userId"));
                                     casa.setEndereco((String) casaData.get("endereco"));
-                                    casa.setImagem(R.drawable.casa1);
-                                    //falta carregar imagem certa
+                                    casa.setImagemURL((String) casaData.get("imagemURL"));
 
                                     todasAsCasas.add(casa);
                                     Log.d("debug", "todas as casas no momento = " + todasAsCasas);
@@ -125,6 +125,8 @@ public class MainActivity extends AppCompatActivity implements CasaAdapter.OnIte
                                 recyclerViewCasa.setAdapter(casaAdapter);
 
                                 casaAdapter.notifyItemInserted(todasAsCasas.size()-1);
+                                Log.d("debug", "todas as casas" + todasAsCasas);
+
                             }
 
                             // Faça algo com os dados obtidos (por exemplo, exibir no console ou em uma lista)
@@ -200,6 +202,7 @@ public class MainActivity extends AppCompatActivity implements CasaAdapter.OnIte
         if (requestCode == REQUEST_CODE_CADASTRAR_CASA && resultCode == RESULT_OK) {
 
             Casa novaCasa = (Casa) data.getSerializableExtra("novaCasa");
+            String imagemUrl = novaCasa.getImagemURL();
 
             DocumentReference usuarioRef = db.collection("usuarios").document(currentUser.getUid());
 
@@ -224,12 +227,13 @@ public class MainActivity extends AppCompatActivity implements CasaAdapter.OnIte
                                 novaCasa.getLatitude(),
                                 novaCasa.getLongitude(),
                                 "R$:" + novaCasa.getAluguel(),
-                                R.drawable.casa1);
+                                novaCasa.getImagemURL());
 
                         // Adicionar a nova casa ao array 'casasPAluguel' do usuário
                         usuario.addCasaPAlugar(casa);
                         todasAsCasas.add(casa);
                         casaAdapter.notifyDataSetChanged();
+                        Log.d("debug", "todas as casas" + todasAsCasas);
 
                         // Atualizar o array 'casasPAluguel' e o ID da nova casa no Firestore
                         Map<String, Object> updateData = new HashMap<>();

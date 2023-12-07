@@ -25,6 +25,8 @@ public class Casa implements Serializable {
     String localizacao;
     private int imagem;
 
+    private String imagemURL;
+
     private Pedido pedido; //
 
 
@@ -32,7 +34,7 @@ public class Casa implements Serializable {
     public Casa(){
     }
 
-    public Casa(String userId,String id,String nome, String telefone, String descricao,String endereco, String localizacao, double latitude, double longitude, String aluguel, int imagem) {
+    public Casa(String userId,String id,String nome, String telefone, String descricao,String endereco, String localizacao, double latitude, double longitude, String aluguel, String imagemURL) {
         this.userId = userId;
         this.id = id;
         this.nome = nome;
@@ -43,7 +45,7 @@ public class Casa implements Serializable {
         this.aluguel = aluguel;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.imagem = imagem;
+        this.imagemURL = imagemURL;
         this.pedido = pedido;
 
     }
@@ -85,6 +87,7 @@ public class Casa implements Serializable {
                 ", aluguel='" + aluguel + '\'' +
                 ", localizacao='" + localizacao + '\'' +
                 ", pedido" + pedido +
+                ", uri da casa'" + imagemURL + '\'' +
                 '}';
     }
 
@@ -153,6 +156,11 @@ public class Casa implements Serializable {
         this.descricao = descricao;
     }
 
+    public String getImagemURL() {
+        return imagemURL;
+    }
 
-
+    public void setImagemURL(String imagemURL) {
+        this.imagemURL = imagemURL;
+    }
 }
